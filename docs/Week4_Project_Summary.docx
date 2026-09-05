@@ -1,0 +1,21 @@
+Week 4 Project Summary
+AnalystLab Africa Experience Lab — Week 4: HealthConnect Clinic Project
+Track: Generative AI  |  Prepared by: Sheila Kimani  |  AnalystLab Africa
+1. The Problem This Track Addresses
+Within the shared HealthConnect Clinic project, the Generative AI track's contribution is to define how a Healthcare Information Assistant can provide safe, useful administrative and informational support to patients, in a way that plausibly reduces missed appointments by making booking, rescheduling, and policy information instantly accessible, while never crossing into clinical territory the assistant is not qualified or approved to handle.
+2. Resources Used
+●	The HealthConnect Clinic Knowledge Base (approved fictional clinic information, FAQs, and AI safety/escalation rules).
+●	The Week 4 assignment brief defining the shared business scenario and Generative AI track tasks.
+3. Key Observations From Week 4
+●	The knowledge base itself already anticipates most of the risk in this project: it explicitly names what the assistant may and must not do, which made scope definition more a matter of faithfully translating existing rules into a workflow than inventing new ones from scratch.
+●	A large share of the clinic's likely enquiry volume (hours, booking steps, rescheduling, late-arrival policy) is exactly the kind of repetitive, well-defined content a knowledge-grounded assistant handles well, which supports the business case for this approach.
+●	The stakes of an incorrect or invented answer are meaningfully higher here than in the Week 1 customer support or Week 3 study assistant projects, since an invented clinic policy or, worse, an implied medical opinion could cause real harm — this pushed the safety boundaries and escalation rules to the center of the design rather than being an afterthought.
+4. Proposed Approach
+Ground every factual response strictly in the approved HealthConnect Clinic Knowledge Base, using a system prompt (and, in a later iteration, a retrieval step) that enforces this boundary. Route any request that falls outside administrative/informational scope, or into medical, diagnostic, or emergency territory, through the escalation rules defined in the AI Assistant Design Document rather than attempting to answer it directly.
+5. Key Considerations Affecting the Project
+●	The knowledge base is fictional and limited; a real deployment would need integration with the clinic's actual, live booking system and patient records, which is out of scope for this stage.
+●	Hallucination risk is the primary technical risk, and it carries higher consequences in a healthcare context than in prior projects this internship has covered.
+●	The assistant has no capability to verify a user's identity or actual appointment status at this stage, which limits how personalized its responses can safely be.
+●	Long-term accuracy depends on the knowledge base being kept current as real clinic policies change — a dependency this design does not yet address.
+6. Proposed Focus for Week 5
+Move from design to an initial working prototype of the assistant: implement the system prompt and escalation logic defined this week, test it against a range of in-scope and out-of-scope queries (including attempted symptom questions and emergency-adjacent phrasing) to confirm the safety boundaries hold in practice, and document any gaps found between the intended design and the assistant's actual behavior.

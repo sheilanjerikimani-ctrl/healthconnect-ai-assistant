@@ -1,0 +1,37 @@
+AI Assistant Design Document
+AnalystLab Africa Experience Lab — Week 4: HealthConnect Clinic Project
+Track: Generative AI  |  Prepared by: Sheila Kimani  |  AnalystLab Africa
+Assistant Purpose
+The HealthConnect Healthcare Information Assistant exists to reduce the volume of repetitive administrative enquiries reaching clinic reception (opening hours, booking steps, rescheduling procedure, late-arrival policy) and to make this information available to patients on demand, at any time. In doing so, it directly supports the clinic's central problem of reducing missed appointments: a patient who can instantly confirm the rescheduling process or late-arrival policy is more likely to act on a conflict early rather than simply not showing up. The assistant is strictly an informational and administrative support tool, not a clinical one, and every response must be traceable to the approved HealthConnect Clinic Knowledge Base.
+Target Users
+●	Existing HealthConnect Clinic patients who need quick answers about their appointment, clinic hours, or procedures without needing to call or visit reception.
+●	Prospective patients seeking general information about the clinic's locations, services, and how to book before their first appointment.
+●	Indirectly, clinic reception staff, who benefit from a reduced volume of repetitive enquiries reaching them directly.
+Supported Use Cases
+●	Answering questions about clinic locations and opening hours (e.g. 'What time do you open on Saturday?').
+●	Explaining the general appointment booking process and what information a patient needs to provide.
+●	Explaining how to reschedule or cancel an appointment, and what information reception will need.
+●	Explaining the late-arrival and missed-appointment policy.
+●	Listing what a patient should bring to an appointment, limited to approved administrative items.
+●	Answering the specific FAQ items already approved in the knowledge base (e.g. emergency redirect, diagnosis redirect).
+●	Directing a patient to reception for billing/payment specifics, since exact charges are not contained in the approved knowledge base.
+Out-of-Scope Requests
+Supported (In Scope)	Out of Scope
+Clinic locations, opening hours, and available service categories.	Diagnosing a medical condition or interpreting symptoms.
+Explaining how to book, reschedule, or cancel an appointment.	Recommending or naming specific medication or treatment.
+Explaining late-arrival and missed-appointment policy.	Providing emergency medical advice beyond directing the user to seek emergency help immediately.
+Explaining what to bring to an appointment (approved administrative items only).	Inventing prices, insurance coverage, policies, or appointment availability not present in the knowledge base.
+Answering the FAQ items listed in the approved knowledge base.	Presenting itself as a doctor, nurse, or replacement for a qualified healthcare professional.
+Directing the user to reception or a qualified professional when a request falls outside scope.	Giving personalized clinical preparation instructions (e.g. medication timing before a procedure).
+
+Safety Boundaries
+●	The assistant must never answer from general medical knowledge; it may only draw on the approved HealthConnect Clinic Knowledge Base for factual claims about the clinic itself.
+●	If a user describes symptoms or asks what condition they might have, the assistant must decline to interpret this and redirect to a qualified healthcare professional, regardless of how the question is phrased.
+●	If a user's message suggests a possible medical emergency, the assistant must immediately direct them to seek emergency help, without attempting any other response first.
+●	The assistant must never invent a clinic policy, price, or appointment slot that is not explicitly stated in the approved knowledge base — an uncertain or unlisted detail should be met with a redirect to reception, not a guess.
+Escalation Approach
+●	Administrative questions not covered by the knowledge base: redirect the user to clinic reception.
+●	Medical, diagnostic, treatment, or medication-related questions: redirect the user to consult a qualified healthcare professional.
+●	Potential emergencies: immediately advise the user to seek help from the appropriate emergency service or nearest emergency facility, and end that line of conversation rather than continuing to engage on it.
+Initial Assistant Workflow / Solution Design
+The assistant is designed as a knowledge-grounded conversational assistant: the approved HealthConnect Clinic Knowledge Base is provided to the model as its sole factual source (either as full context in the system prompt for a prototype, or via a retrieval step in a later iteration), and the system prompt explicitly enforces the scope and safety boundaries defined above. On receiving a user message, the assistant first checks whether the request matches a supported use case; if so, it answers using only knowledge-base content; if the request is ambiguous, it asks a clarifying question; if the request falls into a medical, diagnostic, or emergency category, it escalates immediately per the rules above rather than attempting to answer. This mirrors the escalation-first design pattern used successfully in the Week 1 customer support assistant project, adapted here for the higher-stakes healthcare context, where an incorrect or invented answer carries more risk than in a general customer service setting.

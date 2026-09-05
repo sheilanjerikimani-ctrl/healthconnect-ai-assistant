@@ -58,30 +58,30 @@ RULES YOU MUST FOLLOW:
 
 Respond in plain text, no Markdown, no asterisks.`;
 
-
 async function askAssistant(userInput) {
-  const response = await fetch(
-    "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
-    
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": process.env.GEMINI_API_KEY
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `${SYSTEM_PROMPT}\n\nPatient message: ${userInput}` }] }]
-      })
-    }
-  );
+  const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: "mistral-large-latest",
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userInput }
+      ]
+    })
+  });
+
   const data = await response.json();
-  console.log("GEMINI STATUS:", response.status, "RAW:", JSON.stringify(data));
+  console.log("MISTRAL STATUS:", response.status, "RAW:", JSON.stringify(data));
 
   if (!response.ok) {
-    return `I'm sorry, I couldn't process that right now (error ${response.status}). Please contact clinic reception.`;
+    return `I'm sorry, I couldn't process that right now. Please contact clinic reception.`;
   }
 
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that. Please contact clinic reception.";
+  return data.choices?.[0]?.message?.content || "I'm sorry, I couldn't process that. Please contact clinic reception.";
 }
 
 module.exports = { askAssistant };

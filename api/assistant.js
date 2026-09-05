@@ -75,4 +75,5 @@ async function askAssistant(userInput) {
   const data = await response.json();
   console.log("GEMINI RAW RESPONSE:", JSON.stringify(data));
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that. Please contact clinic reception.";
-}
+}  
+module.exports = { askAssistant };

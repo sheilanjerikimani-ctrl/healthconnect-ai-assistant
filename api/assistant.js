@@ -58,6 +58,7 @@ RULES YOU MUST FOLLOW:
 
 Respond in plain text, no Markdown, no asterisks.`;
 
+
 async function askAssistant(userInput) {
   const response = await fetch(
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
@@ -73,7 +74,13 @@ async function askAssistant(userInput) {
     }
   );
   const data = await response.json();
-  console.log("GEMINI RAW RESPONSE:", JSON.stringify(data));
+  console.log("GEMINI STATUS:", response.status, "RAW:", JSON.stringify(data));
+
+  if (!response.ok) {
+    return `I'm sorry, I couldn't process that right now (error ${response.status}). Please contact clinic reception.`;
+  }
+
   return data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that. Please contact clinic reception.";
-}  
+}
+
 module.exports = { askAssistant };

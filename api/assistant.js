@@ -66,7 +66,7 @@ async function askAssistant(userInput) {
       "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`
     },
     body: JSON.stringify({
-      model: "mistral-large-latest",
+      model: "mistral-small-latest",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: userInput }

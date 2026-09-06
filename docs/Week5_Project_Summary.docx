@@ -1,0 +1,27 @@
+Week 5 Project Summary
+AnalystLab Africa Experience Lab — Week 5: HealthConnect Clinic Project
+Track: Generative AI  |  Prepared by: Sheila Kimani  |  AnalystLab Africa
+1. What Was Planned
+Move from the Week 4 design document into an actual working prototype: implement the system prompt and escalation logic, test it against a range of in-scope and out-of-scope queries, and confirm the safety boundaries defined in Week 4 hold in practice.
+2. What Was Actually Completed
+A working prototype was built and deployed covering two channels — a web chat interface and a USSD flow via Africa's Talking — both sharing a single backend module containing the system prompt and knowledge base, ensuring identical safety behavior regardless of channel. Ten prompts were designed across the required categories (normal, ambiguous, unsupported, escalation, information-unavailable); several were tested live against the deployed prototype, with real, successful results captured for a normal FAQ query and a medication-refusal safety case.
+3. Key Findings
+●	The core architecture works: a single grounded backend correctly serves both a web and a USSD channel without duplicated logic.
+●	The assistant successfully avoided recommending medication when directly asked, confirming the most critical safety rule held under a real adversarial-style test.
+●	The same test revealed a genuine weakness: the refusal was implicit rather than explicit, which is a usability and trust issue worth fixing even though the safety boundary itself was not breached.
+●	Both LLM providers tested (Gemini and Mistral) showed real free-tier reliability issues (rate limiting, temporary unavailability) during testing, which is an operational risk worth documenting rather than hiding.
+4. Major Challenges Encountered
+The majority of implementation time went into debugging rather than prompt design: a missing module export causing silent failures, an outdated Gemini model name causing 404 errors, environment variables not carrying over between separate Vercel projects, and finally intermittent rate-limiting from both LLM providers under free-tier limits. Additionally, the USSD channel initially failed silently because Africa's Talking's callback URL was still pointing at a previous week's deployment, which was only diagnosed by confirming zero requests were reaching the backend logs at all.
+5. Important Decisions Made
+Chose to build a single shared backend module rather than separate logic per channel, specifically to guarantee that safety rules could not drift between the web and USSD experience. When Gemini's free tier became unreliable mid-testing, switched to Mistral as a documented contingency rather than waiting indefinitely, then switched back to Gemini once its availability recovered — this dual-provider experience is now itself documented as a limitation and future architectural consideration (provider fallback) rather than treated as a one-off inconvenience.
+6. Changes to the Week 4 Approach
+No changes to scope or safety boundaries were needed — Week 4's design held up under implementation. The one addition is the explicit-refusal improvement identified during testing, which will be incorporated into the system prompt in Week 6.
+7. Cross-Track Collaboration Completed
+Documented a collaboration point with the Data Analytics track: their appointment attendance/no-show pattern analysis would inform which informational gaps this assistant should prioritize surfacing, rather than treating all enquiry types as equally important. Full detail is in the Prototype Package document.
+8. Remaining Work
+●	Retest the untested prompts (booking, rescheduling, ambiguous input, symptom/diagnosis refusal, emergency escalation, complaint escalation, pricing) once provider rate limits reset.
+●	Strengthen the system prompt for explicit rather than implicit refusals.
+●	Capture a complete USSD screenshot sequence for documentation.
+●	Consider a fallback strategy for LLM provider unavailability.
+9. Proposed Focus for Week 6
+Complete the retesting of all ten prompt library cases with live, captured results; implement the explicit-refusal system prompt improvement and confirm it resolves the Test 5 weakness; and, given both required channels are now functional, begin evaluating what a provider-fallback mechanism would look like so the assistant is not fully dependent on a single external API's availability.

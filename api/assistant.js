@@ -55,31 +55,54 @@ RULES YOU MUST FOLLOW:
 6. NEVER present yourself as a doctor or clinical authority.
 7. Keep responses clear, short, and practical.
 8. If a request is ambiguous, ask a clarifying question rather than guessing.
+9. When declining a request because it is medical, diagnostic, or treatment-related, explicitly say so (e.g. "I can't recommend medication — please consult a healthcare professional") rather than only redirecting to other topics.
+10. If your primary knowledge fails to cover a request, say so honestly rather than guessing, and always suggest the user contact clinic reception.
 
 Respond in plain text, no Markdown, no asterisks.`;
-
-async function askAssistant(userInput) {
+async function callGemini(userInput) {
   const response = await fetch(
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent",
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-goog-api-key": process.env.GEMINI_API_KEY
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `${SYSTEM_PROMPT}\n\nPatient message: ${userInput}` }] }]
-      })
+      headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
+      body: JSON.stringify({ contents: [{ parts: [{ text: `${SYSTEM_PROMPT}\n\nPatient message: ${userInput}` }] }] })
     }
   );
   const data = await response.json();
-  console.log("GEMINI STATUS:", response.status, "RAW:", JSON.stringify(data));
+  if (!response.ok) throw new Error(`Gemini ${response.status}`);
+  return data.candidates?.[0]?.content?.parts?.[0]?.text;
+}
 
-  if (!response.ok) {
-    return `I'm sorry, I couldn't process that right now. Please contact clinic reception.`;
+async function callMistral(userInput) {
+  const response = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}` },
+    body: JSON.stringify({
+      model: "mistral-small-latest",
+      messages: [{ role: "system", content: SYSTEM_PROMPT }, { role: "user", content: userInput }]
+    })
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(`Mistral ${response.status}`);
+  return data.choices?.[0]?.message?.content;
+}
+
+async function askAssistant(userInput) {
+  try {
+    const answer = await callGemini(userInput);
+    if (answer) return answer;
+    throw new Error("Empty Gemini response");
+  } catch (primaryErr) {
+    console.log("Primary provider failed, falling back to Mistral:", primaryErr.message);
+    try {
+      const answer = await callMistral(userInput);
+      if (answer) return answer;
+      throw new Error("Empty Mistral response");
+    } catch (fallbackErr) {
+      console.log("Fallback provider also failed:", fallbackErr.message);
+      return "I'm sorry, I couldn't process that right now. Please contact clinic reception.";
+    }
   }
-
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that. Please contact clinic reception.";
 }
 
 module.exports = { askAssistant };
